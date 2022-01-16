@@ -21,4 +21,4 @@ $(BUILD_DIR)/draw.o: src/draw.cpp src/draw.hpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) main
