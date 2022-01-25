@@ -1,5 +1,5 @@
 CXX := g++
-CFLAGS := -O2
+CFLAGS := -O3
 MAGICKFLAGS := Magick++-config --cppflags --cxxflags --ldflags --libs
 TARGET := main
 BUILD_DIR := build
