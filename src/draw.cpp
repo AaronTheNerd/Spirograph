@@ -3,7 +3,7 @@
 
 #include "draw.hpp"
 
-#define RESOLUTION (1000u)
+#define RESOLUTION (10000u)
 #define DELTA_THETA (M_PI * 2.0 / RESOLUTION)
 
 namespace {
@@ -12,33 +12,32 @@ uint32_t gcd(uint32_t a, uint32_t b) {
     return b == 0 ? a : gcd(b, a % b);
 }
 
+void update_pos(Magick::Coordinate& drawing_pos, const Magick::Coordinate& static_pos,
+        const double& theta_rolling, const double& orbit_rolling_ratio,
+        const double& orbit_radius, const double& drawing_radius) {
+    double theta_drawing = theta_rolling * orbit_rolling_ratio;
+    drawing_pos.x(static_pos.x() + atn::x_offset(orbit_radius, theta_rolling));
+    drawing_pos.y(static_pos.y() + atn::y_offset(orbit_radius, theta_rolling));
+    drawing_pos.x(drawing_pos.x() + atn::x_offset(drawing_radius, theta_drawing));
+    drawing_pos.y(drawing_pos.y() + atn::y_offset(drawing_radius, theta_drawing));
+}
+
 void draw(
         Magick::Image& image, const double& rolling_radius,
         const double& orbit_radius, const double& drawing_radius,
         const double& orbit_rolling_ratio) {
-    double theta_rolling = 0.0, theta_drawing = 0.0;
+    double theta_rolling = 0.0;
     const Magick::Coordinate static_pos(
             image.columns() >> 1, image.rows() >> 1);
-    Magick::Coordinate rolling_pos(
-            static_pos.x() + atn::x_offset(orbit_radius, 0.0),
-            static_pos.y() + atn::y_offset(orbit_radius, 0.0));
-    Magick::Coordinate drawing_pos(
-            rolling_pos.x() + atn::x_offset(drawing_radius, 0.0),
-            rolling_pos.y() + atn::y_offset(drawing_radius, 0.0));
+    Magick::Coordinate drawing_pos;
     uint32_t revolutions = rolling_radius / gcd(orbit_radius, rolling_radius);
     std::cout <<  "Revolutions: " << revolutions << std::endl;
     Magick::CoordinateList points;
     for (size_t i = 0; i < revolutions * RESOLUTION + 1; ++i) {
         theta_rolling = i * DELTA_THETA;
-        theta_drawing = theta_rolling * orbit_rolling_ratio;
-        rolling_pos.x(
-                static_pos.x() + atn::x_offset(orbit_radius, theta_rolling));
-        rolling_pos.y(
-                static_pos.y() + atn::y_offset(orbit_radius, theta_rolling));
-        drawing_pos.x(
-                rolling_pos.x() + atn::x_offset(drawing_radius, theta_drawing));
-        drawing_pos.y(
-                rolling_pos.y() + atn::y_offset(drawing_radius, theta_drawing));
+        update_pos(
+                drawing_pos, static_pos, theta_rolling,
+                orbit_rolling_ratio, orbit_radius, drawing_radius);
         points.push_back(drawing_pos);
     }
     image.draw(Magick::DrawablePolyline(points));
