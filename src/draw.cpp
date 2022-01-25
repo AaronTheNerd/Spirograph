@@ -3,7 +3,7 @@
 
 #include "draw.hpp"
 
-#define RESOLUTION (10000u)
+#define RESOLUTION (1000u)
 #define DELTA_THETA (M_PI * 2.0 / RESOLUTION)
 
 namespace {
